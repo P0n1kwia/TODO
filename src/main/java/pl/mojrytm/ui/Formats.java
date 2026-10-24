@@ -153,4 +153,12 @@ final class Formats {
     static String days(int count) {
         return count + " " + dayUnit(count);
     }
+
+    /** Zmiana oceny ze znakiem: "+2", "−1" (prawdziwy minus) albo "0". */
+    static String change(int delta) {
+        if (delta > 0) {
+            return "+" + delta;
+        }
+        return delta < 0 ? "\u2212" + (-delta) : "0";
+    }
 }

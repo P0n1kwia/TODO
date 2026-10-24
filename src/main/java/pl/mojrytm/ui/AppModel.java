@@ -24,6 +24,8 @@ import pl.mojrytm.service.LogicalClock;
 import pl.mojrytm.service.NoteBoard;
 import pl.mojrytm.service.NoteEditor;
 import pl.mojrytm.service.PauseEditor;
+import pl.mojrytm.service.WheelBoard;
+import pl.mojrytm.service.WheelEditor;
 import pl.mojrytm.storage.DataStore;
 import pl.mojrytm.storage.JsonStorage;
 
@@ -40,6 +42,7 @@ final class AppModel {
     private final GoalBoard goalBoard = new GoalBoard();
     private final CounterBoard counterBoard = new CounterBoard();
     private final NoteBoard noteBoard = new NoteBoard();
+    private final WheelBoard wheelBoard = new WheelBoard();
     private final EntryEditor entryEditor;
     private final HabitEditor habitEditor = new HabitEditor();
     private final PauseEditor pauseEditor = new PauseEditor();
@@ -47,6 +50,7 @@ final class AppModel {
     private final GoalEditor goalEditor = new GoalEditor();
     private final CounterEditor counterEditor = new CounterEditor();
     private final NoteEditor noteEditor = new NoteEditor();
+    private final WheelEditor wheelEditor = new WheelEditor();
 
     private final List<Runnable> closeHooks = new ArrayList<>();
 
@@ -99,6 +103,10 @@ final class AppModel {
         return noteBoard;
     }
 
+    WheelBoard wheelBoard() {
+        return wheelBoard;
+    }
+
     EntryEditor entries() {
         return entryEditor;
     }
@@ -125,6 +133,10 @@ final class AppModel {
 
     NoteEditor notes() {
         return noteEditor;
+    }
+
+    WheelEditor wheel() {
+        return wheelEditor;
     }
 
     /**

@@ -39,6 +39,12 @@ class FormatsTest {
         assertEquals(expected, Formats.days(count));
     }
 
+    @ParameterizedTest
+    @CsvSource({"3,+3", "1,+1", "0,0", "-1,\u22121", "-9,\u22129"})
+    void changeIsShownWithItsSign(int delta, String expected) {
+        assertEquals(expected, Formats.change(delta));
+    }
+
     @Test
     void goalLabelShowsAreaAndGoalAndMarksArchivedOnes() {
         assertEquals("Sen › Spać 8 godzin", Formats.goalLabel(new GoalOption("g", "Sen", "Spać 8 godzin", false)));

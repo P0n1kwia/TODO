@@ -61,6 +61,12 @@ public record AppData(
                 counters, pauses, wheelRatings);
     }
 
+    /** Kopia z podmienioną listą ocen koła życia; reszta danych bez zmian. */
+    public AppData withWheelRatings(List<WheelRating> newWheelRatings) {
+        return new AppData(schemaVersion, settings, areas, goals, habits, entries, tasks, notes, checkIns,
+                counters, pauses, newWheelRatings);
+    }
+
     /** Kopia z podmienioną listą notatek; reszta danych bez zmian. */
     public AppData withNotes(List<Note> newNotes) {
         return new AppData(schemaVersion, settings, areas, goals, habits, entries, tasks, newNotes, checkIns,

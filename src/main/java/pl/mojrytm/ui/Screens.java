@@ -18,6 +18,7 @@ final class Screens {
                 new Screen(Messages.get("nav.goals"), scrollable(new GoalsScreen(model))),
                 new Screen(Messages.get("nav.counters"), scrollable(new CountersScreen(model))),
                 new Screen(Messages.get("nav.journal"), scrollable(new JournalScreen(model))),
+                new Screen(Messages.get("nav.wheel"), scrollable(new WheelScreen(model))),
                 new Screen(Messages.get("nav.pauses"), scrollable(new PausesScreen(model))));
     }
 

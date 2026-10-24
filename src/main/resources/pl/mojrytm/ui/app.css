@@ -151,7 +151,8 @@
     -fx-font-weight: bold;
 }
 
-.journal-panel {
+.journal-panel,
+.wheel-panel {
     -fx-background-color: white;
     -fx-border-color: -color-border;
     -fx-border-radius: 10;
@@ -185,6 +186,13 @@
 
 .note-text {
     -fx-font-size: 14px;
+}
+
+.wheel-value {
+    -fx-text-fill: -color-accent;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-min-width: 32;
 }
 
 .habit-name {
