@@ -1,8 +1,10 @@
 package pl.mojrytm.service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import pl.mojrytm.model.AppData;
@@ -41,6 +43,21 @@ public final class HabitBoard {
                     return new WeekRow(habit, tracker.week(anyDayOfWeek, today), tracker.streak(today));
                 })
                 .toList();
+    }
+
+    /**
+     * Podsumowanie tygodnia do przeglądu. Najlepszy to nawyk z najwyższym procentem, najsłabszy z najniższym
+     * (przy remisie pierwszy w kolejności danych); nawyki, od których nic w tym tygodniu nie oczekujemy
+     * (pauza, przyszłość), nie biorą udziału w porównaniu.
+     */
+    public WeekSummary weekSummary(AppData data, LocalDate anyDayOfWeek, LocalDate today) {
+        List<WeekRow> rows = weekRows(data, anyDayOfWeek, today);
+        Comparator<WeekRow> byPercent = Comparator.comparingInt(row -> row.week().progress().percent().orElseThrow());
+        List<WeekRow> comparable = rows.stream().filter(row -> row.week().progress().percent().isPresent()).toList();
+        Optional<WeekRow> best = comparable.stream().reduce((a, b) -> byPercent.compare(b, a) > 0 ? b : a);
+        Optional<WeekRow> weakest = comparable.stream().reduce((a, b) -> byPercent.compare(b, a) < 0 ? b : a)
+                .filter(row -> best.isPresent() && byPercent.compare(row, best.get()) < 0);
+        return new WeekSummary(rows, best, weakest);
     }
 
     public boolean isPaused(AppData data, LocalDate date) {

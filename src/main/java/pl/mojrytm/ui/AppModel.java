@@ -3,6 +3,8 @@ package pl.mojrytm.ui;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.UnaryOperator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -19,6 +21,8 @@ import pl.mojrytm.service.GoalEditor;
 import pl.mojrytm.service.HabitBoard;
 import pl.mojrytm.service.HabitEditor;
 import pl.mojrytm.service.LogicalClock;
+import pl.mojrytm.service.NoteBoard;
+import pl.mojrytm.service.NoteEditor;
 import pl.mojrytm.service.PauseEditor;
 import pl.mojrytm.storage.DataStore;
 import pl.mojrytm.storage.JsonStorage;
@@ -35,12 +39,16 @@ final class AppModel {
     private final HabitBoard board = new HabitBoard();
     private final GoalBoard goalBoard = new GoalBoard();
     private final CounterBoard counterBoard = new CounterBoard();
+    private final NoteBoard noteBoard = new NoteBoard();
     private final EntryEditor entryEditor;
     private final HabitEditor habitEditor = new HabitEditor();
     private final PauseEditor pauseEditor = new PauseEditor();
     private final AreaEditor areaEditor = new AreaEditor();
     private final GoalEditor goalEditor = new GoalEditor();
     private final CounterEditor counterEditor = new CounterEditor();
+    private final NoteEditor noteEditor = new NoteEditor();
+
+    private final List<Runnable> closeHooks = new ArrayList<>();
 
     private final ObjectProperty<AppData> data = new SimpleObjectProperty<>();
     private final ObjectProperty<LocalDate> today = new SimpleObjectProperty<>();
@@ -87,6 +95,10 @@ final class AppModel {
         return counterBoard;
     }
 
+    NoteBoard noteBoard() {
+        return noteBoard;
+    }
+
     EntryEditor entries() {
         return entryEditor;
     }
@@ -111,6 +123,10 @@ final class AppModel {
         return counterEditor;
     }
 
+    NoteEditor notes() {
+        return noteEditor;
+    }
+
     /**
      * Zmienia dane i planuje zapis. Naruszenie reguły wpisów pokazuje komunikat i zostawia dane bez zmian
      * (wynik false). Inne wyjątki to błędy programu i lecą dalej.
@@ -126,6 +142,19 @@ final class AppModel {
         data.set(updated);
         today.set(clock.today(updated.settings()));
         return true;
+    }
+
+    /**
+     * Rejestruje czynność, którą trzeba wykonać tuż przed zamknięciem okna, jeszcze przed wymuszonym
+     * zapisem danych (np. zapis niezapisanego tekstu z pola edycji).
+     */
+    void addCloseHook(Runnable hook) {
+        closeHooks.add(hook);
+    }
+
+    /** Wykonuje zarejestrowane czynności zamknięcia, w kolejności rejestracji, na wątku JavaFX. */
+    void runCloseHooks() {
+        closeHooks.forEach(Runnable::run);
     }
 
     /** Sprawdza, czy zmienił się dzień logiczny (np. minęła 4:00); wołane okresowo. */

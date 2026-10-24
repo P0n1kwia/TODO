@@ -119,6 +119,7 @@ final class StartupFlow {
 
         stage.setOnCloseRequest(event -> {
             event.consume();
+            model.runCloseHooks();
             shutdown(model);
         });
     }

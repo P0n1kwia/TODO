@@ -52,6 +52,25 @@ class AppModelTest {
     }
 
     @Test
+    void closeHooksRunInRegistrationOrderEachTimeTheyAreRequested() {
+        List<String> calls = new ArrayList<>();
+        model.addCloseHook(() -> calls.add("pierwszy"));
+        model.addCloseHook(() -> calls.add("drugi"));
+
+        model.runCloseHooks();
+        model.runCloseHooks();
+
+        assertEquals(List.of("pierwszy", "drugi", "pierwszy", "drugi"), calls);
+    }
+
+    @Test
+    void withoutCloseHooksClosingDoesNothingSpecial() {
+        model.runCloseHooks();
+
+        assertEquals(1, model.data().habits().size());
+    }
+
+    @Test
     void startsWithTheGivenDataAndTodaysLogicalDay() {
         assertEquals(1, model.data().habits().size());
         assertEquals(TODAY, model.today());

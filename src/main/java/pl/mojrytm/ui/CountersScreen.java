@@ -4,10 +4,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -28,7 +25,7 @@ final class CountersScreen extends VBox {
     private final Predicate<String> confirm;
 
     CountersScreen(AppModel model) {
-        this(model, CountersScreen::confirmWithDialog);
+        this(model, Confirmations::ask);
     }
 
     /** @param confirm pokazuje pytanie (tekst) i zwraca true, gdy użytkownik się zgodził */
@@ -166,14 +163,5 @@ final class CountersScreen extends VBox {
                 && model.update(data -> model.counters().remove(data, counter.id()))) {
             model.showInfo(Messages.format("counters.removed.info", counter.name()));
         }
-    }
-
-    private static boolean confirmWithDialog(String question) {
-        ButtonType yes = new ButtonType(Messages.get("counters.confirm.yes"), ButtonBar.ButtonData.YES);
-        ButtonType no = new ButtonType(Messages.get("counters.confirm.no"), ButtonBar.ButtonData.NO);
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, question, yes, no);
-        alert.setHeaderText(null);
-        alert.setTitle(Messages.get("app.title"));
-        return alert.showAndWait().filter(button -> button == yes).isPresent();
     }
 }

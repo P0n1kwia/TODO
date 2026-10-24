@@ -151,6 +151,42 @@
     -fx-font-weight: bold;
 }
 
+.journal-panel {
+    -fx-background-color: white;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 14 18 16 18;
+}
+
+.summary-box {
+    -fx-background-color: #f6f7f9;
+    -fx-background-radius: 8;
+    -fx-padding: 12 14 12 14;
+}
+
+.summary-highlight {
+    -fx-font-weight: bold;
+}
+
+.summary-best {
+    -fx-text-fill: -color-done-text;
+}
+
+.summary-weakest {
+    -fx-text-fill: -color-minimal-text;
+}
+
+.note-type {
+    -fx-text-fill: -color-accent;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+}
+
+.note-text {
+    -fx-font-size: 14px;
+}
+
 .habit-name {
     -fx-font-size: 16px;
     -fx-font-weight: bold;

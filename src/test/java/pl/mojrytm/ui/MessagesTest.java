@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import pl.mojrytm.model.NoteType;
 import pl.mojrytm.service.EntryRejectedException;
 
 class MessagesTest {
@@ -52,5 +53,11 @@ class MessagesTest {
     @EnumSource(EntryRejectedException.Reason.class)
     void everyEntryRejectionReasonHasAMessage(EntryRejectedException.Reason reason) {
         assertTrue(Messages.has("error.entry." + reason.name()), "brak komunikatu dla " + reason);
+    }
+
+    @ParameterizedTest
+    @EnumSource(NoteType.class)
+    void everyNoteTypeHasALabel(NoteType type) {
+        assertTrue(Messages.has("journal.list.type." + type.name()), "brak nazwy rodzaju " + type);
     }
 }
