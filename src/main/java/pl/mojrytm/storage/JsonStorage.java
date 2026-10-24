@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import pl.mojrytm.model.AppData;
 
 /**
@@ -27,11 +28,13 @@ public final class JsonStorage {
     static final String DATA_FILE = "data.json";
     static final String TMP_FILE = "data.json.tmp";
 
+    private static final System.Logger LOG = System.getLogger(JsonStorage.class.getName());
     private static final DateTimeFormatter CORRUPT_STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
     private final Path dir;
     private final Clock clock;
     private final Migrator migrator;
+    private final Backups backups;
     private final ObjectMapper mapper = Json.newMapper();
 
     public JsonStorage(Path dir, Clock clock) {
@@ -42,6 +45,7 @@ public final class JsonStorage {
         this.dir = dir;
         this.clock = clock;
         this.migrator = migrator;
+        this.backups = new Backups(dir.resolve("backups"), clock);
     }
 
     public Path dataFile() {
@@ -64,13 +68,17 @@ public final class JsonStorage {
         } catch (NewerSchemaVersionException e) {
             return new LoadResult.NewerVersion(e.fileVersion(), e.appVersion());
         } catch (DataFormatException e) {
-            return new LoadResult.Corrupt(moveAsideAsCorrupt(file), e.getMessage());
+            return new LoadResult.Corrupt(moveAsideAsCorrupt(file), latestBackup(), e.getMessage());
         }
     }
 
-    /** Zapisuje dane atomowo. */
+    /**
+     * Zapisuje dane atomowo. Przy pierwszym zapisie danego dnia najpierw robi kopię zapasową
+     * dotychczasowego pliku; jej niepowodzenie nie blokuje zapisu.
+     */
     public void save(AppData data) throws IOException {
         Files.createDirectories(dir);
+        backUpCurrentFileOncePerDay();
         byte[] bytes = (mapper.writeValueAsString(data) + "\n").getBytes(StandardCharsets.UTF_8);
         Path tmp = dir.resolve(TMP_FILE);
         try (FileChannel channel = FileChannel.open(tmp,
@@ -82,6 +90,26 @@ public final class JsonStorage {
             channel.force(true);
         }
         Files.move(tmp, dataFile(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /** Najnowsza kopia zapasowa, jeśli jest. Błąd odczytu folderu kopii traktujemy jak brak kopii. */
+    public Optional<Path> latestBackup() {
+        try {
+            return backups.latest();
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.WARNING, "Nie udało się odczytać folderu kopii zapasowych", e);
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Przywraca dane z kopii: wczytuje ją (z migracjami) i zapisuje jako bieżący plik danych.
+     * Gdy kopia jest nieprawidłowa, rzuca {@link DataFormatException} i niczego nie zmienia.
+     */
+    public AppData restoreFromBackup(Path backup) throws IOException {
+        AppData data = parse(Files.readAllBytes(backup));
+        save(data);
+        return data;
     }
 
     /** Zamienia bajty pliku na dane: parsowanie, migracje, walidacja modelu. */
@@ -100,6 +128,23 @@ public final class JsonStorage {
             return mapper.treeToValue(migrated, AppData.class);
         } catch (JsonProcessingException e) {
             throw new DataFormatException("Dane są nieprawidłowe: " + messageOf(e), e);
+        }
+    }
+
+    private void backUpCurrentFileOncePerDay() {
+        Path file = dataFile();
+        try {
+            if (!Files.exists(file) || backups.existsForToday()) {
+                return;
+            }
+            byte[] bytes = Files.readAllBytes(file);
+            parse(bytes); // kopia ma być zawsze plikiem, który da się wczytać
+            backups.createForToday(bytes);
+            backups.prune();
+        } catch (DataFormatException e) {
+            LOG.log(System.Logger.Level.WARNING, "Pominięto kopię zapasową: bieżący plik nie nadaje się do wczytania", e);
+        } catch (IOException e) {
+            LOG.log(System.Logger.Level.WARNING, "Nie udało się zrobić kopii zapasowej", e);
         }
     }
 

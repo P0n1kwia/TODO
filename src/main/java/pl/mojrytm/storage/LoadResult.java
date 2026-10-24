@@ -1,6 +1,7 @@
 package pl.mojrytm.storage;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import pl.mojrytm.model.AppData;
 
 /** Wynik otwarcia pliku danych. UI decyduje, co pokazać w każdym z przypadków. */
@@ -13,9 +14,10 @@ public sealed interface LoadResult {
     /**
      * Plik był uszkodzony. Nie został nadpisany, tylko przeniesiony do {@code corruptFile}.
      *
-     * @param reason powód uszkodzenia (do pokazania w komunikacie)
+     * @param latestBackup najnowsza kopia zapasowa, którą można zaproponować do przywrócenia
+     * @param reason       powód uszkodzenia (do pokazania w komunikacie)
      */
-    record Corrupt(Path corruptFile, String reason) implements LoadResult {
+    record Corrupt(Path corruptFile, Optional<Path> latestBackup, String reason) implements LoadResult {
     }
 
     /** Plik pochodzi z nowszej wersji aplikacji. Nic nie zostało zmienione. */
