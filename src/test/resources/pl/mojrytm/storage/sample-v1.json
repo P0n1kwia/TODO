@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "settings": {
+    "dayStartHour": 4,
+    "dataDir": null
+  },
+  "areas": [
+    {
+      "id": "area-1",
+      "name": "Sen"
+    }
+  ],
+  "goals": [
+    {
+      "id": "goal-1",
+      "areaId": "area-1",
+      "name": "Kłaść się przed 23:00",
+      "archived": false
+    }
+  ],
+  "habits": [
+    {
+      "id": "habit-1",
+      "goalId": "goal-1",
+      "name": "Wieczorne rozciąganie",
+      "kind": "CHECK",
+      "schedule": "DAILY",
+      "timesPerWeek": null,
+      "targetAmount": null,
+      "unit": null,
+      "minimumVersion": "Jedna pozycja przez minutę",
+      "created": "2026-10-01",
+      "archived": false
+    },
+    {
+      "id": "habit-2",
+      "goalId": null,
+      "name": "Woda",
+      "kind": "COUNT",
+      "schedule": "WEEKLY",
+      "timesPerWeek": 5,
+      "targetAmount": 8.0,
+      "unit": "szklanki",
+      "minimumVersion": null,
+      "created": "2026-10-05",
+      "archived": true
+    }
+  ],
+  "entries": [
+    {
+      "id": "entry-1",
+      "habitId": "habit-1",
+      "date": "2026-10-02",
+      "value": 1.0,
+      "minimal": true
+    },
+    {
+      "id": "entry-2",
+      "habitId": "habit-2",
+      "date": "2026-10-06",
+      "value": 2.5,
+      "minimal": false
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Umówić wizytę u dentysty",
+      "status": "TODAY",
+      "dueDate": "2026-10-25",
+      "doneDate": null
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "date": "2026-10-24",
+      "type": "DAILY",
+      "text": "Dobry dzień, mało snu.",
+      "tags": [
+        "sen",
+        "energia"
+      ],
+      "habitId": "habit-1"
+    }
+  ],
+  "checkIns": [
+    {
+      "date": "2026-10-24",
+      "mood": 4,
+      "energy": 3
+    }
+  ],
+  "counters": [
+    {
+      "id": "counter-1",
+      "name": "Dni bez słodyczy",
+      "startDate": "2026-09-01"
+    }
+  ],
+  "pauses": [
+    {
+      "from": "2026-10-10",
+      "to": "2026-10-12",
+      "reason": "choroba"
+    }
+  ],
+  "wheelRatings": [
+    {
+      "date": "2026-10-01",
+      "areaId": "area-1",
+      "score": 6
+    }
+  ]
+}
