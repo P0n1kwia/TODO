@@ -3,7 +3,9 @@ package pl.mojrytm.ui;
 import java.time.LocalDate;
 import java.util.List;
 import pl.mojrytm.model.AppData;
+import pl.mojrytm.model.Area;
 import pl.mojrytm.model.Entry;
+import pl.mojrytm.model.Goal;
 import pl.mojrytm.model.Habit;
 import pl.mojrytm.model.HabitKind;
 import pl.mojrytm.model.Schedule;
@@ -44,5 +46,28 @@ final class UiTestData {
                 .withEntries(List.of(
                         new Entry("e1", "spacer", YESTERDAY, 1.0, false),
                         new Entry("e2", "woda", TODAY, 3.0, false)));
+    }
+
+    /** Ten sam nawyk przypisany do celu. */
+    static Habit inGoal(Habit habit, String goalId) {
+        return new Habit(habit.id(), goalId, habit.name(), habit.kind(), habit.schedule(), habit.timesPerWeek(),
+                habit.targetAmount(), habit.unit(), habit.minimumVersion(), habit.created(), habit.archived());
+    }
+
+    /**
+     * Hierarchia: Sen (cele "Spać 8 godzin" ze Spacerem i Wodą oraz zarchiwizowany "Wygasły" ze Starym nawykiem),
+     * Ciało (cel "Biegać" z Biegiem) i zarchiwizowany obszar Stary (cel "Dawny cel" bez nawyków).
+     */
+    static AppData sampleWithGoals() {
+        return sample()
+                .withAreas(List.of(new Area("sen", "Sen", false), new Area("cialo", "Ciało", false),
+                        new Area("old", "Stary", true)))
+                .withGoals(List.of(
+                        new Goal("s1", "sen", "Spać 8 godzin", false),
+                        new Goal("s2", "sen", "Wygasły", true),
+                        new Goal("c1", "cialo", "Biegać", false),
+                        new Goal("o1", "old", "Dawny cel", false)))
+                .withHabits(List.of(inGoal(spacer(), "s1"), inGoal(woda(), "s1"), inGoal(bieg(), "c1"),
+                        inGoal(stary(), "s2")));
     }
 }

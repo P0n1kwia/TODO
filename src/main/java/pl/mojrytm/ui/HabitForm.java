@@ -19,7 +19,8 @@ record HabitForm(
         String targetText,
         String unit,
         String minimumVersion,
-        LocalDate start) {
+        LocalDate start,
+        String goalId) {
 
     enum Problem {
         NAME_EMPTY,
@@ -32,7 +33,7 @@ record HabitForm(
                 habit.timesPerWeek() == null ? 3 : habit.timesPerWeek(),
                 habit.targetAmount() == null ? "" : Formats.amount(habit.targetAmount()),
                 habit.unit() == null ? "" : habit.unit(),
-                habit.minimumVersion() == null ? "" : habit.minimumVersion(), habit.created());
+                habit.minimumVersion() == null ? "" : habit.minimumVersion(), habit.created(), habit.goalId());
     }
 
     /** Pierwszy znaleziony problem albo pusty, gdy formularz jest poprawny. */
@@ -53,7 +54,7 @@ record HabitForm(
     }
 
     /** Buduje nawyk; formularz musi być poprawny ({@link #problem()} puste). */
-    Habit toHabit(String id, String goalId, boolean archived) {
+    Habit toHabit(String id, boolean archived) {
         if (problem().isPresent()) {
             throw new IllegalStateException("Formularz nawyku jest niepoprawny: " + problem().get());
         }

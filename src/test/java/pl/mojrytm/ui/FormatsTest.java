@@ -12,6 +12,7 @@ import pl.mojrytm.model.Habit;
 import pl.mojrytm.model.HabitKind;
 import pl.mojrytm.model.Schedule;
 import pl.mojrytm.service.DayStatus;
+import pl.mojrytm.service.GoalOption;
 import pl.mojrytm.service.Streak;
 import pl.mojrytm.service.StreakUnit;
 import pl.mojrytm.service.WeekProgress;
@@ -23,6 +24,20 @@ class FormatsTest {
         assertEquals("Sobota, 24 października 2026", Formats.longDate(LocalDate.of(2026, 10, 24)));
         assertEquals("24.10.2026", Formats.numericDate(LocalDate.of(2026, 10, 24)));
         assertEquals("05.01.2027", Formats.numericDate(LocalDate.of(2027, 1, 5)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0,0 nawyków", "1,1 nawyk", "2,2 nawyki", "4,4 nawyki", "5,5 nawyków", "12,12 nawyków",
+            "22,22 nawyki", "112,112 nawyków"})
+    void habitCountUsesThePolishPlural(int count, String expected) {
+        assertEquals(expected, Formats.habitCount(count));
+    }
+
+    @Test
+    void goalLabelShowsAreaAndGoalAndMarksArchivedOnes() {
+        assertEquals("Sen › Spać 8 godzin", Formats.goalLabel(new GoalOption("g", "Sen", "Spać 8 godzin", false)));
+        assertEquals("Sen › Spać 8 godzin (zarchiwizowany)",
+                Formats.goalLabel(new GoalOption("g", "Sen", "Spać 8 godzin", true)));
     }
 
     @Test

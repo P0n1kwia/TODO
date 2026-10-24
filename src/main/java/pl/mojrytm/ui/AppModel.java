@@ -9,8 +9,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import pl.mojrytm.model.AppData;
+import pl.mojrytm.service.AreaEditor;
 import pl.mojrytm.service.EntryEditor;
 import pl.mojrytm.service.EntryRejectedException;
+import pl.mojrytm.service.GoalBoard;
+import pl.mojrytm.service.GoalEditor;
 import pl.mojrytm.service.HabitBoard;
 import pl.mojrytm.service.HabitEditor;
 import pl.mojrytm.service.LogicalClock;
@@ -28,9 +31,12 @@ final class AppModel {
     private final DataStore store;
     private final LogicalClock clock;
     private final HabitBoard board = new HabitBoard();
+    private final GoalBoard goalBoard = new GoalBoard();
     private final EntryEditor entryEditor;
     private final HabitEditor habitEditor = new HabitEditor();
     private final PauseEditor pauseEditor = new PauseEditor();
+    private final AreaEditor areaEditor = new AreaEditor();
+    private final GoalEditor goalEditor = new GoalEditor();
 
     private final ObjectProperty<AppData> data = new SimpleObjectProperty<>();
     private final ObjectProperty<LocalDate> today = new SimpleObjectProperty<>();
@@ -69,6 +75,10 @@ final class AppModel {
         return board;
     }
 
+    GoalBoard goalBoard() {
+        return goalBoard;
+    }
+
     EntryEditor entries() {
         return entryEditor;
     }
@@ -79,6 +89,14 @@ final class AppModel {
 
     PauseEditor pauses() {
         return pauseEditor;
+    }
+
+    AreaEditor areas() {
+        return areaEditor;
+    }
+
+    GoalEditor goals() {
+        return goalEditor;
     }
 
     /**

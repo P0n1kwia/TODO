@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import pl.mojrytm.model.AppData;
+import pl.mojrytm.model.Area;
+import pl.mojrytm.model.Goal;
 import pl.mojrytm.model.Habit;
 import pl.mojrytm.model.HabitKind;
 import pl.mojrytm.model.Pause;
@@ -38,6 +40,36 @@ class HabitEditorTest {
         AppData data = editor.add(AppData.empty(), check("a", "Spacer"));
 
         assertThrows(IllegalArgumentException.class, () -> editor.add(data, check("a", "Inny")));
+    }
+
+    private static AppData withGoal() {
+        return AppData.empty()
+                .withAreas(List.of(new Area("area", "Sen", false)))
+                .withGoals(List.of(new Goal("goal", "area", "Spać 8 godzin", false)));
+    }
+
+    private static Habit inGoal(String id, String goalId) {
+        return new Habit(id, goalId, "Spacer", HabitKind.CHECK, Schedule.DAILY, null, null, null, null, DAY, false);
+    }
+
+    @Test
+    void habitCanBeAddedToAnExistingGoal() {
+        AppData data = editor.add(withGoal(), inGoal("a", "goal"));
+
+        assertEquals("goal", data.habits().get(0).goalId());
+    }
+
+    @Test
+    void habitInAnUnknownGoalIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> editor.add(withGoal(), inGoal("a", "nie-ma")));
+    }
+
+    @Test
+    void updateCanMoveAHabitBetweenGoalsAndOutOfAnyGoal() {
+        AppData data = editor.add(withGoal(), inGoal("a", "goal"));
+
+        assertEquals(null, editor.update(data, inGoal("a", null)).habits().get(0).goalId());
+        assertThrows(IllegalArgumentException.class, () -> editor.update(data, inGoal("a", "nie-ma")));
     }
 
     @Test

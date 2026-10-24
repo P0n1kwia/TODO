@@ -16,14 +16,16 @@ public final class HabitEditor {
         if (indexOf(data, habit.id()) >= 0) {
             throw new IllegalArgumentException("Nawyk o takim id już istnieje: " + habit.id());
         }
+        requireGoalExists(data, habit);
         List<Habit> habits = new ArrayList<>(data.habits());
         habits.add(habit);
         return data.withHabits(habits);
     }
 
-    /** Podmienia nawyk o tym samym id (nazwa, harmonogram, cel, wersja minimalna). */
+    /** Podmienia nawyk o tym samym id (nazwa, cel nadrzędny, harmonogram, cel ilościowy, wersja minimalna). */
     public AppData update(AppData data, Habit updated) {
         int index = requireIndex(data, updated.id());
+        requireGoalExists(data, updated);
         Habit current = data.habits().get(index);
         if (current.kind() != updated.kind()) {
             throw new IllegalArgumentException("Rodzaju nawyku nie można zmienić");
@@ -45,6 +47,12 @@ public final class HabitEditor {
         List<Habit> habits = new ArrayList<>(data.habits());
         habits.set(index, current.withArchived(archived));
         return data.withHabits(habits);
+    }
+
+    private static void requireGoalExists(AppData data, Habit habit) {
+        if (habit.goalId() != null && data.goals().stream().noneMatch(goal -> goal.id().equals(habit.goalId()))) {
+            throw new IllegalArgumentException("Nie ma celu o id: " + habit.goalId());
+        }
     }
 
     private static int requireIndex(AppData data, String habitId) {

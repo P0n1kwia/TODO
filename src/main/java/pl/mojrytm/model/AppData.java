@@ -49,6 +49,12 @@ public record AppData(
                 counters, pauses, wheelRatings);
     }
 
+    /** Kopia z podmienioną listą celów; reszta danych bez zmian. */
+    public AppData withGoals(List<Goal> newGoals) {
+        return new AppData(schemaVersion, settings, areas, newGoals, habits, entries, tasks, notes, checkIns,
+                counters, pauses, wheelRatings);
+    }
+
     /** Kopia z podmienioną listą nawyków; reszta danych bez zmian. */
     public AppData withHabits(List<Habit> newHabits) {
         return new AppData(schemaVersion, settings, areas, goals, newHabits, entries, tasks, notes, checkIns,

@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import pl.mojrytm.model.Habit;
+import pl.mojrytm.service.HabitGroup;
 
 /** Ekran „Nawyki": lista wszystkich nawyków z edycją, archiwizacją i przywracaniem. */
 final class HabitsScreen extends VBox {
@@ -33,28 +34,47 @@ final class HabitsScreen extends VBox {
         create.setOnAction(event -> HabitActions.create(this, model));
         getChildren().addAll(title, create);
 
-        List<Habit> active = new ArrayList<>();
-        List<Habit> archived = new ArrayList<>();
-        for (Habit habit : model.data().habits()) {
-            (habit.archived() ? archived : active).add(habit);
-        }
-        if (active.isEmpty() && archived.isEmpty()) {
+        List<HabitGroup> groups = model.goalBoard().habitGroups(model.data());
+        List<Habit> archived = model.data().habits().stream().filter(Habit::archived).toList();
+        if (groups.isEmpty() && archived.isEmpty()) {
             Label empty = new Label(Messages.get("habits.empty"));
             empty.getStyleClass().add("habit-meta");
             getChildren().add(empty);
             return;
         }
-        addSection(Messages.get("habits.active"), active);
+        if (!groups.isEmpty()) {
+            getChildren().add(sectionTitle(Messages.get("habits.active")));
+            // nagłówki grup tylko wtedy, gdy jakiś nawyk ma cel; inaczej jedna lista jak dotąd
+            boolean grouped = groups.stream().anyMatch(group -> group.goal() != null);
+            for (HabitGroup group : groups) {
+                if (grouped) {
+                    getChildren().add(groupTitle(group));
+                }
+                group.habits().forEach(habit -> getChildren().add(row(habit)));
+            }
+        }
         addSection(Messages.get("habits.archived"), archived);
+    }
+
+    private static Label sectionTitle(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("section-title");
+        return label;
+    }
+
+    private static Label groupTitle(HabitGroup group) {
+        Label label = new Label(group.goal() == null
+                ? Messages.get("habits.group.none")
+                : Formats.goalLabel(group.goal()));
+        label.getStyleClass().add("group-title");
+        return label;
     }
 
     private void addSection(String heading, List<Habit> habits) {
         if (habits.isEmpty()) {
             return;
         }
-        Label label = new Label(heading);
-        label.getStyleClass().add("section-title");
-        getChildren().add(label);
+        getChildren().add(sectionTitle(heading));
         habits.forEach(habit -> getChildren().add(row(habit)));
     }
 
@@ -65,6 +85,11 @@ final class HabitsScreen extends VBox {
                 Messages.format("habit.since", Formats.numericDate(habit.created()))));
         if (habit.minimumVersion() != null) {
             parts.add(Messages.format("habit.minimum", habit.minimumVersion()));
+        }
+        if (habit.archived()) {
+            // aktywne nawyki stoją pod nagłówkiem swojego celu, zarchiwizowane tworzą jedną listę
+            model.goalBoard().goalOf(model.data(), habit.goalId())
+                    .ifPresent(goal -> parts.add(Messages.format("habit.goal", Formats.goalLabel(goal))));
         }
         Label details = new Label(String.join(" · ", parts));
         details.getStyleClass().add("habit-meta");

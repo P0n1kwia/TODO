@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -15,6 +16,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import pl.mojrytm.model.AppData;
+import pl.mojrytm.model.Habit;
+import pl.mojrytm.model.HabitKind;
+import pl.mojrytm.model.Schedule;
 import pl.mojrytm.storage.JsonStorage;
 
 class HabitsScreenTest {
@@ -110,5 +114,43 @@ class HabitsScreenTest {
         open(AppData.empty());
 
         assertEquals(List.of("Nie ma jeszcze żadnych nawyków."), texts(".habit-meta"));
+    }
+
+    @Test
+    void withoutGoalsThereAreNoGroupHeadings() {
+        open(UiTestData.sample());
+
+        assertEquals(List.of(), texts(".group-title"));
+    }
+
+    @Test
+    void activeHabitsAreGroupedUnderTheirGoalWithHabitsWithoutGoalLast() {
+        AppData data = UiTestData.sampleWithGoals();
+        List<Habit> habits = new ArrayList<>(data.habits());
+        habits.add(0, new Habit("lektura", null, "Lektura", HabitKind.CHECK, Schedule.DAILY, null, null, null, null,
+                UiTestData.LONG_AGO, false));
+        open(data.withHabits(habits));
+
+        assertEquals(List.of("Sen › Spać 8 godzin", "Ciało › Biegać", "Bez celu"), texts(".group-title"));
+        assertEquals(List.of("Spacer", "Woda", "Bieg", "Lektura", "Stary nawyk"), texts(".habit-name"));
+    }
+
+    @Test
+    void archivedHabitsStayInOneListAndShowTheirGoalInTheDetails() {
+        open(UiTestData.sampleWithGoals());
+
+        assertEquals(List.of("Aktywne", "Zarchiwizowane"), texts(".section-title"));
+        assertTrue(texts(".habit-meta").contains(
+                "Codziennie · Zaznaczenie · od 01.01.2026 · Cel: Sen › Wygasły (zarchiwizowany)"));
+        assertEquals(List.of("Sen › Spać 8 godzin", "Ciało › Biegać"), texts(".group-title"));
+    }
+
+    @Test
+    void activeHabitInAnArchivedGoalStillAppearsUnderIt() {
+        AppData data = UiTestData.sampleWithGoals();
+        open(data.withHabits(List.of(UiTestData.inGoal(UiTestData.spacer(), "s2"))));
+
+        assertEquals(List.of("Sen › Wygasły (zarchiwizowany)"), texts(".group-title"));
+        assertEquals(List.of("Spacer"), texts(".habit-name"));
     }
 }

@@ -1,13 +1,16 @@
 package pl.mojrytm.ui;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -22,6 +25,7 @@ import javafx.stage.Window;
 import pl.mojrytm.model.Habit;
 import pl.mojrytm.model.HabitKind;
 import pl.mojrytm.model.Ids;
+import pl.mojrytm.service.GoalOption;
 
 /** Okno dodawania i edycji nawyku. Walidację i budowanie nawyku robi {@link HabitForm}. */
 final class HabitDialog {
@@ -32,12 +36,13 @@ final class HabitDialog {
     /**
      * @param existing nawyk do edycji (rodzaj i dzień założenia są wtedy zablokowane) albo null dla nowego
      * @param today    domyślny dzień rozpoczęcia nowego nawyku
+     * @param goals    cele do wyboru (bez opcji "bez celu", tę dodaje okno)
      */
-    static Optional<Habit> show(Window owner, Habit existing, LocalDate today) {
+    static Optional<Habit> show(Window owner, Habit existing, LocalDate today, List<GoalOption> goals) {
         boolean editing = existing != null;
         HabitForm initial = editing
                 ? HabitForm.from(existing)
-                : new HabitForm("", HabitKind.CHECK, false, 3, "", "", "", today);
+                : new HabitForm("", HabitKind.CHECK, false, 3, "", "", "", today, null);
 
         Dialog<Habit> dialog = new Dialog<>();
         dialog.initOwner(owner);
@@ -49,6 +54,16 @@ final class HabitDialog {
         TextField name = new TextField(initial.name());
         name.setPromptText(Messages.get("dialog.habit.name.prompt"));
         name.setPrefColumnCount(32);
+
+        List<GoalChoice> choices = GoalChoice.list(goals);
+        ComboBox<GoalChoice> goal = new ComboBox<>(FXCollections.observableArrayList(choices));
+        goal.setId("habit-goal");
+        goal.getSelectionModel().select(GoalChoice.find(choices, initial.goalId()));
+        goal.setDisable(choices.size() == 1);
+        Label goalHint = new Label(Messages.get("dialog.habit.goal.hint"));
+        goalHint.getStyleClass().add("habit-meta");
+        goalHint.setVisible(choices.size() == 1);
+        goalHint.setManaged(choices.size() == 1);
 
         ToggleGroup kindGroup = new ToggleGroup();
         RadioButton checkKind = new RadioButton(Messages.get("dialog.habit.kind.check"));
@@ -92,6 +107,7 @@ final class HabitDialog {
         grid.setMinWidth(520);
         int row = 0;
         grid.addRow(row++, new Label(Messages.get("dialog.habit.name")), name);
+        grid.addRow(row++, new Label(Messages.get("dialog.habit.goal")), new HBox(8, goal, goalHint));
         grid.addRow(row++, new Label(Messages.get("dialog.habit.kind")), new VBox(6, checkKind, countKind));
         Node targetLabel = new Label(Messages.get("dialog.habit.target"));
         HBox targetBox = new HBox(8, target, unit);
@@ -109,7 +125,7 @@ final class HabitDialog {
 
         Supplier<HabitForm> form = () -> new HabitForm(name.getText(),
                 countKind.isSelected() ? HabitKind.COUNT : HabitKind.CHECK, weekly.isSelected(), times.getValue(),
-                target.getText(), unit.getText(), minimum.getText(), start.getValue());
+                target.getText(), unit.getText(), minimum.getText(), start.getValue(), goal.getValue().goalId());
 
         Node saveButton = dialog.getDialogPane().lookupButton(save);
         Runnable refresh = () -> {
@@ -124,8 +140,7 @@ final class HabitDialog {
         refresh.run();
 
         dialog.setResultConverter(button -> button == save
-                ? form.get().toHabit(editing ? existing.id() : Ids.newId(),
-                        editing ? existing.goalId() : null, editing && existing.archived())
+                ? form.get().toHabit(editing ? existing.id() : Ids.newId(), editing && existing.archived())
                 : null);
         Platform.runLater(name::requestFocus);
         return dialog.showAndWait();

@@ -10,6 +10,7 @@ import pl.mojrytm.model.Habit;
 import pl.mojrytm.model.HabitKind;
 import pl.mojrytm.model.Schedule;
 import pl.mojrytm.service.DayStatus;
+import pl.mojrytm.service.GoalOption;
 import pl.mojrytm.service.Streak;
 import pl.mojrytm.service.StreakUnit;
 import pl.mojrytm.service.WeekProgress;
@@ -128,5 +129,17 @@ final class Formats {
         }
         String unit = habit.unit() == null ? "" : " " + habit.unit();
         return amount(habit.targetAmount()) + unit;
+    }
+
+    /** "Sen › Spać 8 godzin", a dla zarchiwizowanego celu lub obszaru z dopiskiem "(zarchiwizowany)". */
+    static String goalLabel(GoalOption goal) {
+        String label = goal.areaName() + " › " + goal.goalName();
+        return goal.archived() ? Messages.format("goal.label.archived", label) : label;
+    }
+
+    /** "1 nawyk", "2 nawyki", "5 nawyków". */
+    static String habitCount(int count) {
+        return count + " " + PolishPlural.pick(count, Messages.get("habit.count.one"),
+                Messages.get("habit.count.few"), Messages.get("habit.count.many"));
     }
 }

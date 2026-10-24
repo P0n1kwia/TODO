@@ -11,12 +11,13 @@ final class HabitActions {
     }
 
     static void create(Node anchor, AppModel model) {
-        HabitDialog.show(windowOf(anchor), null, model.today())
+        HabitDialog.show(windowOf(anchor), null, model.today(), model.goalBoard().goalOptions(model.data(), null))
                 .ifPresent(habit -> model.update(data -> model.habits().add(data, habit)));
     }
 
     static void edit(Node anchor, AppModel model, Habit habit) {
-        HabitDialog.show(windowOf(anchor), habit, model.today())
+        HabitDialog.show(windowOf(anchor), habit, model.today(),
+                model.goalBoard().goalOptions(model.data(), habit.goalId()))
                 .ifPresent(updated -> model.update(data -> model.habits().update(data, updated)));
     }
 
