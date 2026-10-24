@@ -20,10 +20,25 @@ Pakiet bazowy: `pl.mojrytm` (do zmiany, jeśli wolę inny).
 ```
 mvn clean verify        # kompilacja i wszystkie testy (musi przechodzić przed każdym commitem)
 mvn test                # tylko testy
-mvn javafx:run          # uruchomienie aplikacji (wymaga javafx-maven-plugin)
+mvn javafx:run          # uruchomienie aplikacji (javafx-maven-plugin)
 ```
 
-Po założeniu projektu uzupełnij tę sekcję o komendę `jpackage` i sprawdź, czy powyższe działają.
+W sesji bez ekranu (chmura, Linux) aplikację uruchamia się pod `xvfb-run -a mvn javafx:run`.
+
+### Pakowanie (`jpackage`)
+
+Docelowy system to Windows. Najpierw wersja bez instalatora (`app-image`: folder z `MojRytm.exe`, nie wymaga dodatkowych narzędzi):
+
+```
+mvn clean verify
+mvn dependency:copy-dependencies -DoutputDirectory=target/input -DincludeScope=runtime
+copy target\moj-rytm-0.1.0-SNAPSHOT.jar target\input\
+jpackage --type app-image --name MojRytm --app-version 0.1.0 --input target/input --main-jar moj-rytm-0.1.0-SNAPSHOT.jar --main-class pl.mojrytm.Launcher --dest target/dist
+```
+
+Instalator `.exe`: ta sama komenda z `--type exe --win-menu --win-shortcut` zamiast `--type app-image` (wymaga zainstalowanego WiX Toolset). `jpackage` nie robi cross-kompilacji, więc instalator Windows buduje się na Windowsie. Przy zmianie wersji projektu zaktualizuj nazwę jara i `--app-version`.
+
+Stan sprawdzenia: `verify`, `test`, `javafx:run` i `app-image` zostały sprawdzone na Linuksie (zamiast `copy` było `cp`); aplikacja z `app-image` startuje i pokazuje okno. Wariant Windows (`.exe`, WiX) nie był jeszcze uruchamiany. Przy starcie z classpath JavaFX wypisuje ostrzeżenie „Unsupported JavaFX configuration" (bez `module-info`); nie wpływa na działanie.
 
 ## Architektura
 
@@ -36,6 +51,8 @@ pl.mojrytm
 ├── service    logika: serie, statystyki, tygodnie, dzień logiczny (bez UI)
 └── ui         widoki JavaFX, bez liczenia czegokolwiek
 ```
+
+Punkt wejścia: `pl.mojrytm.Launcher` (osobna klasa, bo JavaFX nie startuje klasy rozszerzającej `Application` bezpośrednio z classpath). Bez `module-info.java`, projekt działa na classpath.
 
 * Widoki nie liczą serii ani procentów. Biorą gotowe wyniki z `service`.
 * UI budujemy w kodzie Javy, bez FXML i bez SceneBuilder, chyba że zdecyduję inaczej.
@@ -100,6 +117,15 @@ To najbardziej błędogenna część aplikacji. Każda reguła ma mieć testy je
 * Wykonanie tygodnia (%): zaliczone / oczekiwane. Dla nawyków dziennych oczekiwane są dni od założenia nawyku (`created`) do dziś w danym tygodniu, dla tygodniowych wartość N. Dni przed założeniem nie liczą się nigdzie.
 * Przyszłość: nie można zaznaczyć dnia z przyszłości. Wsteczne uzupełnianie przeszłych dni jest dozwolone.
 * Zadania: w statusie `TODAY` mogą być najwyżej 3. Próba dodania czwartego pokazuje komunikat, nie zgadzamy się po cichu.
+
+Doprecyzowania uzgodnione przy starcie etapu 1:
+
+* `Pause` jest globalna (dotyczy wszystkich nawyków), bo nie ma `habitId`.
+* CHECK: jeden wpis na nawyk na dzień. Odznaczenie usuwa wpis.
+* Tygodniowy nawyk COUNT: dzień „z wpisem" to dzień, w którym suma ≥ `targetAmount` (lub wpis z `minimal = true`).
+* COUNT z `minimal = true`: dzień jest zaliczony niezależnie od `value`.
+* Wpis na dzień przed `created` jest blokowany z komunikatem.
+* Nawyk tygodniowy w tygodniu z częściową pauzą albo założony w środku tygodnia: oczekiwane = `min(N, dni dostępne w tym tygodniu)`. Dostępne to dni od `created`, poza pauzą, do końca tygodnia.
 
 ## Dashboard (docelowo)
 
