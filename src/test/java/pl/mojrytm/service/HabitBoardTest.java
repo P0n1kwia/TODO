@@ -36,7 +36,7 @@ class HabitBoardTest {
     }
 
     private static AppData data(List<Habit> habits, List<Entry> entries, List<Pause> pauses) {
-        return new AppData(1, null, null, null, habits, entries, null, null, null, null, pauses, null);
+        return new AppData(AppData.CURRENT_SCHEMA_VERSION, null, null, null, habits, entries, null, null, null, null, pauses, null);
     }
 
     @Test

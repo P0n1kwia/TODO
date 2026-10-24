@@ -52,7 +52,7 @@ class DataStoreTest {
     }
 
     private static AppData withDayStart(int hour) {
-        return new AppData(1, new Settings(hour, null), null, null, null, null, null, null, null, null, null, null);
+        return new AppData(AppData.CURRENT_SCHEMA_VERSION, new Settings(hour, null), null, null, null, null, null, null, null, null, null, null);
     }
 
     @AfterEach

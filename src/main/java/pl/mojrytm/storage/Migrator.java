@@ -29,7 +29,7 @@ public final class Migrator {
 
     /** Migracje aplikacji. Przy każdej zmianie modelu: podbij AppData.CURRENT_SCHEMA_VERSION i dopisz tu migrację. */
     public static Migrator standard() {
-        return new Migrator(AppData.CURRENT_SCHEMA_VERSION, List.of());
+        return new Migrator(AppData.CURRENT_SCHEMA_VERSION, List.of(new MigrationV1ToV2()));
     }
 
     /** Czy istnieje komplet migracji z podanej wersji do bieżącej. */

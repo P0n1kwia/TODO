@@ -121,18 +121,18 @@ class ModelValidationTest {
 
     @Test
     void appDataKeepsImmutableCopiesOfLists() {
-        List<Area> areas = new ArrayList<>(List.of(new Area("a", "Sen")));
-        AppData data = new AppData(1, null, areas, null, null, null, null, null, null, null, null, null);
+        List<Area> areas = new ArrayList<>(List.of(new Area("a", "Sen", false)));
+        AppData data = new AppData(AppData.CURRENT_SCHEMA_VERSION, null, areas, null, null, null, null, null, null, null, null, null);
 
-        areas.add(new Area("b", "Ciało"));
+        areas.add(new Area("b", "Ciało", false));
 
         assertEquals(1, data.areas().size());
-        assertThrows(UnsupportedOperationException.class, () -> data.areas().add(new Area("c", "Relacje")));
+        assertThrows(UnsupportedOperationException.class, () -> data.areas().add(new Area("c", "Relacje", false)));
     }
 
     @Test
     void withEntriesReplacesOnlyTheEntries() {
-        AppData data = new AppData(1, new Settings(6, null), List.of(new Area("a", "Sen")),
+        AppData data = new AppData(AppData.CURRENT_SCHEMA_VERSION, new Settings(6, null), List.of(new Area("a", "Sen", false)),
                 null, null, null, null, null, null, null, null, null);
         Entry entry = new Entry("e", "h", DAY, 1.0, false);
 
@@ -167,6 +167,14 @@ class ModelValidationTest {
     }
 
     @Test
+    void areaWithArchivedChangesOnlyTheFlag() {
+        Area area = new Area("a", "Sen", false);
+
+        assertEquals(new Area("a", "Sen", true), area.withArchived(true));
+        assertEquals(area, area.withArchived(true).withArchived(false));
+    }
+
+    @Test
     void emptyAppDataUsesCurrentSchemaAndDefaultSettings() {
         AppData data = AppData.empty();
 
@@ -179,7 +187,7 @@ class ModelValidationTest {
     void idsAreUniqueNonBlankText() {
         String first = Ids.newId();
 
-        assertDoesNotThrow(() -> new Area(first, "Sen"));
+        assertDoesNotThrow(() -> new Area(first, "Sen", false));
         assertEquals(36, first.length());
         assertNotEquals(first, Ids.newId());
     }

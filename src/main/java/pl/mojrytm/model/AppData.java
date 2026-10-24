@@ -22,7 +22,7 @@ public record AppData(
         List<WheelRating> wheelRatings) {
 
     /** Bieżąca wersja schematu. Zmiana modelu = podbicie + migracja w storage.Migrator + test. */
-    public static final int CURRENT_SCHEMA_VERSION = 1;
+    public static final int CURRENT_SCHEMA_VERSION = 2;
 
     public AppData {
         settings = settings == null ? Settings.defaults() : settings;
@@ -41,6 +41,12 @@ public record AppData(
     public static AppData empty() {
         return new AppData(CURRENT_SCHEMA_VERSION, Settings.defaults(),
                 null, null, null, null, null, null, null, null, null, null);
+    }
+
+    /** Kopia z podmienioną listą obszarów; reszta danych bez zmian. */
+    public AppData withAreas(List<Area> newAreas) {
+        return new AppData(schemaVersion, settings, newAreas, goals, habits, entries, tasks, notes, checkIns,
+                counters, pauses, wheelRatings);
     }
 
     /** Kopia z podmienioną listą nawyków; reszta danych bez zmian. */

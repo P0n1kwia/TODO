@@ -77,7 +77,7 @@ Zapisujemy tylko fakty. Serie, procenty i inne wartości wyliczane liczy kod, ni
 
 Hierarchia: Obszar → Cel → Nawyk.
 
-* `Area`: id, name (np. Sen, Ciało, Pieniądze, Relacje)
+* `Area`: id, name (np. Sen, Ciało, Pieniądze, Relacje), archived
 * `Goal`: id, areaId, name, archived
 * `Habit`: id, goalId (opcjonalnie), name, kind (`CHECK` lub `COUNT`), schedule (`DAILY` lub `WEEKLY` z `timesPerWeek` 1–7), targetAmount i unit (tylko `COUNT`), minimumVersion (tekst, opcjonalnie), created (LocalDate), archived
 * `Entry`: id, habitId, date, value, minimal (czy zaliczone wersją minimalną)
@@ -94,7 +94,7 @@ Szkielet pliku:
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "settings": { "dayStartHour": 4, "dataDir": null },
   "areas": [], "goals": [], "habits": [], "entries": [],
   "tasks": [], "notes": [], "checkIns": [], "counters": [],
@@ -115,7 +115,7 @@ Szkielet pliku:
 Jak to jest zrobione (krok 1):
 
 * Model to niezmienne rekordy z walidacją w konstruktorach. `AppData` jest niezmienną migawką całego pliku. Zmiana danych = nowa migawka przez `DataStore.update(...)`. Nieprawidłowa wartość w pliku (np. nastrój 9) traktowana jest jak uszkodzony plik.
-* Kolejność pól w pliku wynika z kolejności składowych rekordu. Format pilnuje plik wzorcowy `src/test/resources/pl/mojrytm/storage/sample-v1.json` (test zapisuje przykładowe dane i porównuje bajt po bajcie). Przy zmianie modelu zaktualizuj go świadomie.
+* Kolejność pól w pliku wynika z kolejności składowych rekordu. Format pilnuje plik wzorcowy `src/test/resources/pl/mojrytm/storage/sample-v2.json` (test zapisuje przykładowe dane i porównuje bajt po bajcie). Przy zmianie modelu zaktualizuj go świadomie, a poprzedni plik wzorcowy (`sample-v1.json`) zostaw jako wejście testu migracji.
 * `JsonStorage.load()` zwraca `LoadResult`: `Loaded` (brak pliku = puste dane), `Corrupt` (plik przeniesiony na bok, z najnowszą kopią do zaproponowania) albo `NewerVersion` (nic nie zmieniono). `restoreFromBackup(...)` przywraca kopię. Błąd odczytu (np. brak uprawnień) to zwykły `IOException`, nie uszkodzenie.
 * Kopia zapasowa powstaje przy pierwszym zapisie danego dnia i jest kopią dotychczasowego pliku, czyli stanem sprzed pierwszej zmiany tego dnia. Data w nazwie to data kalendarzowa z `Clock`. Kopii nie tworzymy z pliku, którego nie da się wczytać. Niepowodzenie kopii tylko loguje ostrzeżenie i nie blokuje zapisu.
 * `DataStore` zapisuje w tle na własnym wątku (opóźnienie 500 ms, kolejne zmiany przesuwają termin). Wątek JavaFX nigdy nie czeka na dysk przy `update`. Nieudany zapis zgłasza callback, zmiany zostają w pamięci i zapis powtarza się przy kolejnej zmianie, `flush()` lub `close()`. Wczytanie przy starcie UI opakowuje w `Task`, wynik przekazuje przez `Platform.runLater`.

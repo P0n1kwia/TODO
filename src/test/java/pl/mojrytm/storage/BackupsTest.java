@@ -53,7 +53,7 @@ class BackupsTest {
 
     /** Dane różniące się między dniami, żeby kopie dało się odróżnić. */
     private static AppData dataVariant(int variant) {
-        return new AppData(1, new Settings(variant % 24, null),
+        return new AppData(AppData.CURRENT_SCHEMA_VERSION, new Settings(variant % 24, null),
                 null, null, null, null, null, null, null, null, null, null);
     }
 

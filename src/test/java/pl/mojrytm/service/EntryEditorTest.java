@@ -52,7 +52,7 @@ class EntryEditorTest {
     }
 
     private static AppData dataWith(int dayStartHour, List<Entry> entries, Habit... habits) {
-        return new AppData(1, new Settings(dayStartHour, null), null, null, List.of(habits), entries,
+        return new AppData(AppData.CURRENT_SCHEMA_VERSION, new Settings(dayStartHour, null), null, null, List.of(habits), entries,
                 null, null, null, null, null, null);
     }
 

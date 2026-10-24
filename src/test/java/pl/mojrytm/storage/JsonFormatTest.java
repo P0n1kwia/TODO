@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import pl.mojrytm.TestData;
 import pl.mojrytm.model.AppData;
+import pl.mojrytm.model.Area;
 
 class JsonFormatTest {
 
@@ -33,11 +35,21 @@ class JsonFormatTest {
     void emptyDataMatchesSkeletonFromSpec() throws IOException {
         String json = mapper.writeValueAsString(AppData.empty());
 
-        assertTrue(json.contains("\"schemaVersion\": 1"), json);
+        assertTrue(json.contains("\"schemaVersion\": 2"), json);
         assertTrue(json.contains("\"dayStartHour\": 4"), json);
         assertTrue(json.contains("\"dataDir\": null"), json);
         assertTrue(json.contains("\"habits\": []"), json);
         assertTrue(json.contains("\"wheelRatings\": []"), json);
+    }
+
+    @Test
+    void archivedAreaSurvivesWritingAndReading() throws IOException {
+        AppData data = AppData.empty().withAreas(List.of(new Area("a", "Sen", true), new Area("b", "Ciało", false)));
+
+        AppData read = mapper.readValue(mapper.writeValueAsString(data), AppData.class);
+
+        assertEquals(data, read);
+        assertTrue(read.areas().get(0).archived());
     }
 
     @Test
@@ -59,7 +71,7 @@ class JsonFormatTest {
     }
 
     private static String sampleFile() throws IOException {
-        try (InputStream in = JsonFormatTest.class.getResourceAsStream("sample-v1.json")) {
+        try (InputStream in = JsonFormatTest.class.getResourceAsStream("sample-v2.json")) {
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }

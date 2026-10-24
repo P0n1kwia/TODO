@@ -25,12 +25,12 @@ public final class TestData {
     private TestData() {
     }
 
-    /** Po jednej encji każdego rodzaju; odpowiada plikowi sample-v1.json. */
+    /** Po jednej encji każdego rodzaju; odpowiada plikowi sample-v2.json. */
     public static AppData sampleData() {
         return new AppData(
                 AppData.CURRENT_SCHEMA_VERSION,
                 new Settings(4, null),
-                List.of(new Area("area-1", "Sen")),
+                List.of(new Area("area-1", "Sen", false)),
                 List.of(new Goal("goal-1", "area-1", "Kłaść się przed 23:00", false)),
                 List.of(
                         new Habit("habit-1", "goal-1", "Wieczorne rozciąganie", HabitKind.CHECK, Schedule.DAILY,
