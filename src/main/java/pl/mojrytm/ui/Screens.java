@@ -13,6 +13,7 @@ final class Screens {
     static List<Screen> create(AppModel model) {
         return List.of(
                 new Screen(Messages.get("nav.today"), scrollable(new TodayScreen(model))),
+                new Screen(Messages.get("nav.week"), scrollable(new WeekScreen(model))),
                 new Screen(Messages.get("nav.habits"), scrollable(new HabitsScreen(model))));
     }
 

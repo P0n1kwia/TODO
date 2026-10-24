@@ -179,3 +179,60 @@
 .form-problem {
     -fx-text-fill: -color-muted;
 }
+
+.day-header {
+    -fx-text-fill: -color-muted;
+    -fx-font-size: 12px;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.day-header.today {
+    -fx-text-fill: -color-accent;
+    -fx-font-weight: bold;
+}
+
+.day-cell {
+    -fx-background-color: white;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.day-cell:hover {
+    -fx-border-color: -color-accent;
+}
+
+.day-cell.paused {
+    -fx-background-color: -color-paused;
+    -fx-border-style: dashed;
+    -fx-border-color: #8aa4c2;
+}
+
+.day-cell.paused:hover {
+    -fx-border-color: -color-accent;
+}
+
+.day-cell.done {
+    -fx-background-color: -color-done;
+    -fx-text-fill: -color-done-text;
+    -fx-font-weight: bold;
+}
+
+.day-cell.minimal {
+    -fx-background-color: -color-minimal;
+    -fx-text-fill: -color-minimal-text;
+    -fx-font-weight: bold;
+}
+
+.day-cell.unavailable {
+    -fx-background-color: #eceef1;
+    -fx-opacity: 0.55;
+    -fx-cursor: default;
+}
+
+.week-progress.completed {
+    -fx-text-fill: -color-done-text;
+    -fx-font-weight: bold;
+}
