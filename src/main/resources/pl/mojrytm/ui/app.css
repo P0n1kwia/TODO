@@ -1,0 +1,55 @@
+/* Mój Rytm: styl podstawowy (motyw jasny). Kolory niosą też symbole w kratkach, nie tylko barwa. */
+.root {
+    -fx-font-size: 14px;
+    -color-done: #cfe9d4;
+    -color-done-text: #1e5a2e;
+    -color-minimal: #e8efc4;
+    -color-minimal-text: #55621a;
+    -color-paused: #dbe4ee;
+    -color-muted: #6b7280;
+    -color-border: #d4d8de;
+    -color-error: #b3261e;
+    -color-accent: #2f6fb2;
+}
+
+.main-view {
+    -fx-background-color: #f6f7f9;
+}
+
+.navigation {
+    -fx-padding: 10 16 10 16;
+    -fx-spacing: 6;
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent -color-border transparent;
+}
+
+.nav-button {
+    -fx-background-radius: 16;
+    -fx-background-color: transparent;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: #eef1f5;
+}
+
+.nav-button:selected {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: white;
+}
+
+.status-bar {
+    -fx-padding: 8 16 8 16;
+    -fx-background-color: white;
+    -fx-border-color: -color-border transparent transparent transparent;
+}
+
+.status-info {
+    -fx-text-fill: -color-muted;
+}
+
+.status-error {
+    -fx-text-fill: -color-error;
+    -fx-font-weight: bold;
+}

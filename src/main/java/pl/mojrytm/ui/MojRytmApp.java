@@ -1,19 +1,16 @@
 package pl.mojrytm.ui;
 
+import java.time.Clock;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import pl.mojrytm.storage.JsonStorage;
 
-/** Główne okno aplikacji. Na razie szkielet, widoki dojdą w kolejnych krokach. */
+/** Aplikacja JavaFX: całą pracę przy starcie i zamknięciu wykonuje {@link StartupFlow}. */
 public final class MojRytmApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        StackPane root = new StackPane(new Label(Messages.get("app.placeholder")));
-        stage.setTitle(Messages.get("app.title"));
-        stage.setScene(new Scene(root, 900, 600));
-        stage.show();
+        Clock clock = Clock.systemDefaultZone();
+        new StartupFlow(stage, new JsonStorage(DataLocation.resolve(), clock), clock).run();
     }
 }

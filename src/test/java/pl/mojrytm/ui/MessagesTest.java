@@ -18,7 +18,8 @@ import pl.mojrytm.service.EntryRejectedException;
 
 class MessagesTest {
 
-    private static final Pattern KEY_USE = Pattern.compile("Messages\\.(?:get|format)\\(\\s*\"([^\"]+)\"");
+    /** Pełny literał jako klucz; klucze składane z członów (np. error.entry.<powód>) sprawdzają osobne testy. */
+    private static final Pattern KEY_USE = Pattern.compile("Messages\\.(?:get|format)\\(\\s*\"([^\"]+)\"\\s*[,)]");
 
     @Test
     void readsPolishTextsWithDiacritics() {
