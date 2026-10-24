@@ -25,6 +25,10 @@ mvn javafx:run          # uruchomienie aplikacji (javafx-maven-plugin)
 
 W sesji bez ekranu (chmura, Linux) aplikację uruchamia się pod `xvfb-run -a mvn javafx:run`.
 
+Testy widoków (`*ScreenTest`, `MainViewTest`) używają prawdziwego toolkitu JavaFX, więc potrzebują ekranu. Bez niego są pomijane, a nie oblewane (zwykłe `mvn clean verify` przechodzi, ale ich nie uruchamia). Na Windowsie uruchamiają się zawsze. Na serwerze bez ekranu przed commitem uruchom też: `xvfb-run -a mvn clean verify`.
+
+Folder danych można podmienić właściwością systemową `-Dmojrytm.dataDir=<folder>` (próby bez ruszania `~/.moj-rytm`). Domyślnie `~/.moj-rytm`.
+
 ### Pakowanie (`jpackage`)
 
 Docelowy system to Windows. Najpierw wersja bez instalatora (`app-image`: folder z `MojRytm.exe`, nie wymaga dodatkowych narzędzi):
@@ -59,6 +63,13 @@ Punkt wejścia: `pl.mojrytm.Launcher` (osobna klasa, bo JavaFX nie startuje klas
 * Żadnego I/O na wątku JavaFX. Zapis i odczyt przez `Task`, wynik do UI przez `Platform.runLater`.
 * Czas zawsze przez wstrzyknięty `Clock`, nigdy `LocalDate.now()` w logice. Dzięki temu testy są deterministyczne.
 * Nazwy klas, metod i zmiennych po angielsku. Teksty widoczne w UI i komentarze po polsku. Teksty UI trzymaj w jednym miejscu (`messages_pl.properties`), nie rozsiane po kodzie.
+
+### Jak jest zrobione UI (krok 3)
+
+* `StartupFlow` prowadzi start (wczytanie w `Task`, ekrany dla uszkodzonego pliku z propozycją przywrócenia kopii i dla pliku z nowszej wersji) i koniec (zamknięcie okna wymusza zapis w tle, przy błędzie można ponowić). `AppModel` trzyma dane, dzisiejszy dzień logiczny i komunikat jako właściwości, które widoki obserwują; `AppModel.update(...)` zamienia odrzucenie reguły (`EntryRejectedException`) na komunikat w pasku stanu.
+* Ekrany to `TodayScreen`, `WeekScreen`, `HabitsScreen`, `PausesScreen`. Każdy jest `VBox` budowanym od nowa po zmianie danych i dodawanym w `Screens.create(...)`, który owija go w `ScrollPane`. Okna: `HabitDialog`, `AmountDialog`. Style w `src/main/resources/pl/mojrytm/ui/app.css` (motyw jasny; stan niesie też symbol, nie tylko kolor).
+* Logikę wejścia (walidację formularzy, formaty, odmianę, parsowanie) trzymamy w czystych klasach bez JavaFX (`HabitForm`, `PauseForm`, `AmountChoice`, `Formats`, `PolishPlural`, `DateConverter`), żeby dało się je testować zwykłymi testami. Zestawienia liczbowe dla ekranów daje `service.HabitBoard`.
+* Każdy tekst widoczny w UI jest w `messages_pl.properties`. Test sprawdza, że klucze użyte w kodzie istnieją, a dla rodzin kluczy składanych z członów (`error.entry.<powód>`, `habit.form.problem.<problem>`, `pauses.form.problem.<problem>`) że każdy powód ma komunikat.
 
 ## Model danych
 
@@ -162,6 +173,8 @@ Budujemy po kolei. Każdy etap ma być używalny samodzielnie, a przed następny
 3. **Zadania:** skrzynka, widok „Dziś" z limitem trzech priorytetów.
 4. **Notatki, liczniki, cele:** wpis dzienny, przegląd tygodnia, licznik „dni od", hierarchia Obszar → Cel → Nawyk, koło życia.
 5. **Szlify:** ustawienia, motyw jasny i ciemny, skróty klawiszowe, instalator `jpackage`.
+
+Stan: etap 1 jest zaimplementowany (kroki 0–3: szkielet, model i storage, service, UI) i czeka na testy użytkownika.
 
 Poza zakresem na razie: synchronizacja między urządzeniami, konta, przypomnienia systemowe, punkty i poziomy, funkcje AI.
 
