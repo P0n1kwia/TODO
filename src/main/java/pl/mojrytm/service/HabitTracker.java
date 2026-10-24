@@ -67,6 +67,50 @@ public final class HabitTracker {
                 : weeklyProgress(start, end, today);
     }
 
+    /**
+     * Bieżąca seria liczona wstecz od {@code today}.
+     *
+     * <p>Nawyk dzienny: kolejne zaliczone dni. Dzień, który jeszcze trwa i nie jest zaliczony,
+     * nie przerywa serii (liczymy od wczoraj). Nawyk tygodniowy: kolejne zaliczone tygodnie,
+     * bieżący niezaliczony tydzień też nie przerywa. Dni w pauzie i tygodnie bez oczekiwań
+     * (w całości w pauzie albo przed założeniem) są pomijane. Historia kończy się na dniu założenia.
+     */
+    public Streak streak(LocalDate today) {
+        return habit.schedule() == Schedule.DAILY ? dailyStreak(today) : weeklyStreak(today);
+    }
+
+    private Streak dailyStreak(LocalDate today) {
+        int length = 0;
+        for (LocalDate date = today; !date.isBefore(habit.created()); date = date.minusDays(1)) {
+            if (pauses.isPaused(date)) {
+                continue;
+            }
+            if (statusOn(date).isDone()) {
+                length++;
+            } else if (!date.equals(today)) {
+                break;
+            }
+        }
+        return new Streak(length, StreakUnit.DAYS);
+    }
+
+    private Streak weeklyStreak(LocalDate today) {
+        LocalDate currentWeek = Weeks.startOf(today);
+        int length = 0;
+        for (LocalDate start = currentWeek; !start.plusDays(6).isBefore(habit.created()); start = start.minusWeeks(1)) {
+            WeekProgress progress = weekProgress(start, today);
+            if (progress.expected() == 0) {
+                continue;
+            }
+            if (progress.completed()) {
+                length++;
+            } else if (!start.equals(currentWeek)) {
+                break;
+            }
+        }
+        return new Streak(length, StreakUnit.WEEKS);
+    }
+
     private WeekProgress dailyProgress(LocalDate start, LocalDate end, LocalDate today) {
         int done = 0;
         int expected = 0;
