@@ -43,6 +43,12 @@ public record AppData(
                 null, null, null, null, null, null, null, null, null, null);
     }
 
+    /** Kopia z podmienioną listą wpisów; reszta danych bez zmian. */
+    public AppData withEntries(List<Entry> newEntries) {
+        return new AppData(schemaVersion, settings, areas, goals, habits, newEntries, tasks, notes, checkIns,
+                counters, pauses, wheelRatings);
+    }
+
     private static <T> List<T> copy(List<T> list) {
         return list == null ? List.of() : List.copyOf(list);
     }

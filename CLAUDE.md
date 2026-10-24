@@ -138,6 +138,17 @@ Doprecyzowania uzgodnione przy starcie etapu 1:
 * Wpis na dzień przed `created` jest blokowany z komunikatem.
 * Nawyk tygodniowy w tygodniu z częściową pauzą albo założony w środku tygodnia: oczekiwane = `min(N, dni dostępne w tym tygodniu)`. Dostępne to dni od `created`, poza pauzą, do końca tygodnia.
 
+Doprecyzowania z kroku 2 (`service`), do zakwestionowania, jeśli coś jest nie tak:
+
+* Stan dnia to `NOT_DONE`, `DONE_MINIMAL` albo `DONE`. COUNT z sumą ≥ celu jest `DONE`, nawet jeśli któryś wpis ma `minimal = true`. Sumy porównujemy z tolerancją 1e-9.
+* Nawyk dzienny: dzień w pauzie jest pomijany całkowicie. Wpis z takiego dnia nie wydłuża serii i nie wchodzi do licznika procentu (widok nadal go pokazuje).
+* Nawyk tygodniowy: wpisy w dniach pauzy liczą się do N (to „ile razy w tygodniu"), a oczekiwane = `min(N, dni dostępne)`. Tydzień w całości w pauzie jest pomijany nawet z wpisami. Procent nie przekracza 100.
+* Bieżący tydzień nawyku dziennego: oczekiwane to dni do dziś włącznie. Dla tygodniowego dni przed nami są jeszcze dostępne.
+* Seria dzienna kończy się na dniu założenia nawyku. Seria tygodniowa kończy się na tygodniu, który skończył się przed założeniem.
+* Edycja wpisów (`EntryEditor`): jeden wpis na nawyk na dzień, dni w pauzie można zaznaczać, nawyk zarchiwizowany jest tylko do odczytu, dzień „z przyszłości" liczy się według dnia logicznego. Sumy COUNT są zaokrąglane do 6 miejsc po przecinku, żeby `0.1 + 0.2` nie trafiło do pliku jako `0.30000000000000004`.
+
+Jak jest zrobiona warstwa `service` (krok 2): `LogicalClock` jest jedynym miejscem zamieniającym `Clock` na datę (dzień logiczny z `settings.dayStartHour`), `Weeks` i `Pauses` to kalendarz, `HabitTracker` liczy dni, tydzień i serię jednego nawyku (dzisiejszy dzień podaje wołający), a `EntryEditor` zmienia wpisy i zgłasza `EntryRejectedException` z kodem powodu, który UI mapuje na komunikat z `messages_pl.properties`.
+
 ## Dashboard (docelowo)
 
 Wykonanie tygodnia i seria przy każdym nawyku, mapa cieplna z ostatnich 12 tygodni (siatka kwadratów), najczęściej pomijany nawyk, najgorszy dzień tygodnia, trend nastroju i energii oraz zestawienie nawyków z nastrojem (czy dni z wykonanym nawykiem są lepsze). Koło życia pokazywane jako zmiana ocen w czasie. Wszystko liczone w `service`.

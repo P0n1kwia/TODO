@@ -131,6 +131,20 @@ class ModelValidationTest {
     }
 
     @Test
+    void withEntriesReplacesOnlyTheEntries() {
+        AppData data = new AppData(1, new Settings(6, null), List.of(new Area("a", "Sen")),
+                null, null, null, null, null, null, null, null, null);
+        Entry entry = new Entry("e", "h", DAY, 1.0, false);
+
+        AppData changed = data.withEntries(List.of(entry));
+
+        assertEquals(List.of(entry), changed.entries());
+        assertEquals(data.areas(), changed.areas());
+        assertEquals(data.settings(), changed.settings());
+        assertEquals(List.of(), data.entries());
+    }
+
+    @Test
     void emptyAppDataUsesCurrentSchemaAndDefaultSettings() {
         AppData data = AppData.empty();
 
