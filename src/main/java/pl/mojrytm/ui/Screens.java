@@ -14,7 +14,8 @@ final class Screens {
         return List.of(
                 new Screen(Messages.get("nav.today"), scrollable(new TodayScreen(model))),
                 new Screen(Messages.get("nav.week"), scrollable(new WeekScreen(model))),
-                new Screen(Messages.get("nav.habits"), scrollable(new HabitsScreen(model))));
+                new Screen(Messages.get("nav.habits"), scrollable(new HabitsScreen(model))),
+                new Screen(Messages.get("nav.pauses"), scrollable(new PausesScreen(model))));
     }
 
     private static ScrollPane scrollable(Node content) {
