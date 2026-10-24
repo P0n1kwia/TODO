@@ -101,6 +101,17 @@ Szkielet pliku:
 * `schemaVersion` jest w pliku od pierwszej wersji. Każda zmiana modelu oznacza podniesienie wersji, dopisanie migracji w `Migrator` (łańcuch migracji wersja po wersji) i test migracji na przykładowym pliku. Jeśli plik ma nowszą wersję niż aplikacja, odmów otwarcia z czytelnym komunikatem i nic nie zmieniaj.
 * Jackson: `JavaTimeModule`, `WRITE_DATES_AS_TIMESTAMPS` wyłączone (daty jako `2026-10-24`), czytelne wcięcia i stabilna kolejność pól (plik ma dać się przeczytać i porównać w diffie), `FAIL_ON_UNKNOWN_PROPERTIES` wyłączone.
 
+Jak to jest zrobione (krok 1):
+
+* Model to niezmienne rekordy z walidacją w konstruktorach. `AppData` jest niezmienną migawką całego pliku. Zmiana danych = nowa migawka przez `DataStore.update(...)`. Nieprawidłowa wartość w pliku (np. nastrój 9) traktowana jest jak uszkodzony plik.
+* Kolejność pól w pliku wynika z kolejności składowych rekordu. Format pilnuje plik wzorcowy `src/test/resources/pl/mojrytm/storage/sample-v1.json` (test zapisuje przykładowe dane i porównuje bajt po bajcie). Przy zmianie modelu zaktualizuj go świadomie.
+* `JsonStorage.load()` zwraca `LoadResult`: `Loaded` (brak pliku = puste dane), `Corrupt` (plik przeniesiony na bok, z najnowszą kopią do zaproponowania) albo `NewerVersion` (nic nie zmieniono). `restoreFromBackup(...)` przywraca kopię. Błąd odczytu (np. brak uprawnień) to zwykły `IOException`, nie uszkodzenie.
+* Kopia zapasowa powstaje przy pierwszym zapisie danego dnia i jest kopią dotychczasowego pliku, czyli stanem sprzed pierwszej zmiany tego dnia. Data w nazwie to data kalendarzowa z `Clock`. Kopii nie tworzymy z pliku, którego nie da się wczytać. Niepowodzenie kopii tylko loguje ostrzeżenie i nie blokuje zapisu.
+* `DataStore` zapisuje w tle na własnym wątku (opóźnienie 500 ms, kolejne zmiany przesuwają termin). Wątek JavaFX nigdy nie czeka na dysk przy `update`. Nieudany zapis zgłasza callback, zmiany zostają w pamięci i zapis powtarza się przy kolejnej zmianie, `flush()` lub `close()`. Wczytanie przy starcie UI opakowuje w `Task`, wynik przekazuje przez `Platform.runLater`.
+* Wartości ilościowe (`targetAmount`, `Entry.value`) to `double`. Porównania sum z celem robi `service` z niewielką tolerancją.
+
+Do rozstrzygnięcia w etapie 5 (ustawienia): `settings.dataDir` leży w samym pliku danych, więc aplikacja nie wie, gdzie szukać pliku, jeśli folder został zmieniony. Potrzebny jest stały wskaźnik poza folderem danych (np. mały plik w `~/.moj-rytm/`).
+
 ## Zasady logiki
 
 To najbardziej błędogenna część aplikacji. Każda reguła ma mieć testy jednostkowe.
