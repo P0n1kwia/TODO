@@ -67,9 +67,9 @@ Punkt wejścia: `pl.mojrytm.Launcher` (osobna klasa, bo JavaFX nie startuje klas
 ### Jak jest zrobione UI (krok 3)
 
 * `StartupFlow` prowadzi start (wczytanie w `Task`, ekrany dla uszkodzonego pliku z propozycją przywrócenia kopii i dla pliku z nowszej wersji) i koniec (zamknięcie okna wymusza zapis w tle, przy błędzie można ponowić). `AppModel` trzyma dane, dzisiejszy dzień logiczny i komunikat jako właściwości, które widoki obserwują; `AppModel.update(...)` zamienia odrzucenie reguły (`EntryRejectedException`) na komunikat w pasku stanu.
-* Ekrany to `TodayScreen`, `WeekScreen`, `HabitsScreen`, `GoalsScreen`, `PausesScreen`. Każdy jest `VBox` budowanym od nowa po zmianie danych i dodawanym w `Screens.create(...)`, który owija go w `ScrollPane`. Okna: `HabitDialog`, `AmountDialog`, `NameDialog` (nazwa obszaru lub celu). Style w `src/main/resources/pl/mojrytm/ui/app.css` (motyw jasny; stan niesie też symbol, nie tylko kolor).
-* Logikę wejścia (walidację formularzy, formaty, odmianę, parsowanie) trzymamy w czystych klasach bez JavaFX (`HabitForm`, `PauseForm`, `NameForm`, `GoalChoice`, `AmountChoice`, `Formats`, `PolishPlural`, `DateConverter`), żeby dało się je testować zwykłymi testami. Zestawienia dla ekranów dają `service.HabitBoard` (wyniki nawyków) i `service.GoalBoard` (hierarchia Obszar → Cel → Nawyk).
-* Każdy tekst widoczny w UI jest w `messages_pl.properties`. Test sprawdza, że klucze użyte w kodzie istnieją, a dla rodzin kluczy składanych z członów (`error.entry.<powód>`, `habit.form.problem.<problem>`, `pauses.form.problem.<problem>`, `name.form.problem.<problem>`) że każdy powód ma komunikat.
+* Ekrany to `TodayScreen`, `WeekScreen`, `HabitsScreen`, `GoalsScreen`, `CountersScreen`, `PausesScreen`. Każdy jest `VBox` budowanym od nowa po zmianie danych i dodawanym w `Screens.create(...)`, który owija go w `ScrollPane`. Okna: `HabitDialog`, `AmountDialog`, `NameDialog` (nazwa obszaru lub celu). Style w `src/main/resources/pl/mojrytm/ui/app.css` (motyw jasny; stan niesie też symbol, nie tylko kolor).
+* Logikę wejścia (walidację formularzy, formaty, odmianę, parsowanie) trzymamy w czystych klasach bez JavaFX (`HabitForm`, `PauseForm`, `NameForm`, `CounterForm`, `GoalChoice`, `AmountChoice`, `Formats`, `PolishPlural`, `DateConverter`), żeby dało się je testować zwykłymi testami. Zestawienia dla ekranów dają `service.HabitBoard` (wyniki nawyków) i `service.GoalBoard` (hierarchia Obszar → Cel → Nawyk).
+* Każdy tekst widoczny w UI jest w `messages_pl.properties`. Test sprawdza, że klucze użyte w kodzie istnieją, a dla rodzin kluczy składanych z członów (`error.entry.<powód>`, `habit.form.problem.<problem>`, `pauses.form.problem.<problem>`, `name.form.problem.<problem>`, `counters.form.problem.<problem>`) że każdy powód ma komunikat.
 
 ## Model danych
 
@@ -167,7 +167,9 @@ Doprecyzowania z etapu 4 (obszary i cele), do zakwestionowania, jeśli coś jest
 * Ekran „Nawyki” grupuje aktywne nawyki według celu (nagłówki "Obszar › Cel"), a gdy żaden nawyk nie ma celu, pokazuje jedną listę jak wcześniej. Zarchiwizowane nawyki są jedną listą z celem w opisie. Ekran „Cele” zarządza obszarami i celami oraz pokazuje liczbę aktywnych nawyków celu.
 * Przykładowe obszary (Sen, Ciało, Pieniądze, Relacje; nazwy w `messages_pl.properties`) dodaje przycisk na pustym ekranie „Cele”; nic nie jest tworzone samo.
 
-Jak jest zrobiona warstwa `service` (krok 2): `LogicalClock` jest jedynym miejscem zamieniającym `Clock` na datę (dzień logiczny z `settings.dayStartHour`), `Weeks` i `Pauses` to kalendarz, `HabitTracker` liczy dni, tydzień i serię jednego nawyku (dzisiejszy dzień podaje wołający), a `EntryEditor` zmienia wpisy i zgłasza `EntryRejectedException` z kodem powodu, który UI mapuje na komunikat z `messages_pl.properties`. Etap 4: `AreaEditor`, `GoalEditor` i `HabitEditor` zmieniają listy (błąd programisty to `IllegalArgumentException`, UI sprawdza wcześniej), a `GoalBoard` składa hierarchię dla widoków.
+* Liczniki: licznik to nazwa i dzień startu; wynik to liczba pełnych dni od startu do dziś logicznego (w dniu startu 0, nazajutrz 1; start w przyszłości daje 0), liczy `service.CounterBoard`. Start w formularzu nie może być w przyszłości. „Zaczynam od nowa” ustawia start na dziś (nie działa w dniu startu) i nie zapamiętuje poprzedniego wyniku, więc pyta o potwierdzenie; usunięcie licznika też (liczniki nie mają historii, więc usuwamy, a nie archiwizujemy).
+
+Jak jest zrobiona warstwa `service` (krok 2): `LogicalClock` jest jedynym miejscem zamieniającym `Clock` na datę (dzień logiczny z `settings.dayStartHour`), `Weeks` i `Pauses` to kalendarz, `HabitTracker` liczy dni, tydzień i serię jednego nawyku (dzisiejszy dzień podaje wołający), a `EntryEditor` zmienia wpisy i zgłasza `EntryRejectedException` z kodem powodu, który UI mapuje na komunikat z `messages_pl.properties`. Etap 4: `AreaEditor`, `GoalEditor`, `CounterEditor` i `HabitEditor` zmieniają listy (błąd programisty to `IllegalArgumentException`, UI sprawdza wcześniej), a `GoalBoard` i `CounterBoard` składają zestawienia dla widoków.
 
 ## Dashboard (docelowo)
 
@@ -183,7 +185,7 @@ Budujemy po kolei. Każdy etap ma być używalny samodzielnie, a przed następny
 4. **Notatki, liczniki, cele:** wpis dzienny, przegląd tygodnia, licznik „dni od", hierarchia Obszar → Cel → Nawyk, koło życia.
 5. **Szlify:** ustawienia, motyw jasny i ciemny, skróty klawiszowe, instalator `jpackage`.
 
-Stan: etap 1 jest zaimplementowany (kroki 0–3: szkielet, model i storage, service, UI) i czeka na testy użytkownika. Etap 4 jest w toku (etapy 2 i 3 odłożone na prośbę użytkownika): zrobione 4a (schemat v2) i 4b (obszary i cele); dalej 4c liczniki, 4d dziennik (wpis dzienny, przegląd tygodnia, wolne notatki), 4e koło życia.
+Stan: etap 1 jest zaimplementowany (kroki 0–3: szkielet, model i storage, service, UI) i czeka na testy użytkownika. Etap 4 jest w toku (etapy 2 i 3 odłożone na prośbę użytkownika): zrobione 4a (schemat v2), 4b (obszary i cele) i 4c (liczniki); dalej 4d dziennik (wpis dzienny, przegląd tygodnia, wolne notatki), 4e koło życia.
 
 Poza zakresem na razie: synchronizacja między urządzeniami, konta, przypomnienia systemowe, punkty i poziomy, funkcje AI.
 

@@ -33,6 +33,12 @@ class FormatsTest {
         assertEquals(expected, Formats.habitCount(count));
     }
 
+    @ParameterizedTest
+    @CsvSource({"0,0 dni", "1,1 dzień", "2,2 dni", "5,5 dni", "12,12 dni", "22,22 dni", "100,100 dni"})
+    void daysUseThePolishPlural(int count, String expected) {
+        assertEquals(expected, Formats.days(count));
+    }
+
     @Test
     void goalLabelShowsAreaAndGoalAndMarksArchivedOnes() {
         assertEquals("Sen › Spać 8 godzin", Formats.goalLabel(new GoalOption("g", "Sen", "Spać 8 godzin", false)));

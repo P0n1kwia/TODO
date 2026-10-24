@@ -145,6 +145,12 @@
     -fx-font-weight: bold;
 }
 
+.counter-days {
+    -fx-text-fill: -color-accent;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
 .habit-name {
     -fx-font-size: 16px;
     -fx-font-weight: bold;

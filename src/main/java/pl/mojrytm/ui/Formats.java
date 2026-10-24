@@ -142,4 +142,15 @@ final class Formats {
         return count + " " + PolishPlural.pick(count, Messages.get("habit.count.one"),
                 Messages.get("habit.count.few"), Messages.get("habit.count.many"));
     }
+
+    /** "dzień" albo "dni" po liczbie. */
+    static String dayUnit(int count) {
+        return PolishPlural.pick(count, Messages.get("streak.days.one"), Messages.get("streak.days.few"),
+                Messages.get("streak.days.many"));
+    }
+
+    /** "1 dzień", "5 dni". */
+    static String days(int count) {
+        return count + " " + dayUnit(count);
+    }
 }

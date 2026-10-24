@@ -61,6 +61,12 @@ public record AppData(
                 counters, pauses, wheelRatings);
     }
 
+    /** Kopia z podmienioną listą liczników; reszta danych bez zmian. */
+    public AppData withCounters(List<Counter> newCounters) {
+        return new AppData(schemaVersion, settings, areas, goals, habits, entries, tasks, notes, checkIns,
+                newCounters, pauses, wheelRatings);
+    }
+
     /** Kopia z podmienioną listą pauz; reszta danych bez zmian. */
     public AppData withPauses(List<Pause> newPauses) {
         return new AppData(schemaVersion, settings, areas, goals, habits, entries, tasks, notes, checkIns,
