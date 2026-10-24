@@ -43,6 +43,18 @@ public record AppData(
                 null, null, null, null, null, null, null, null, null, null);
     }
 
+    /** Kopia z podmienioną listą nawyków; reszta danych bez zmian. */
+    public AppData withHabits(List<Habit> newHabits) {
+        return new AppData(schemaVersion, settings, areas, goals, newHabits, entries, tasks, notes, checkIns,
+                counters, pauses, wheelRatings);
+    }
+
+    /** Kopia z podmienioną listą pauz; reszta danych bez zmian. */
+    public AppData withPauses(List<Pause> newPauses) {
+        return new AppData(schemaVersion, settings, areas, goals, habits, entries, tasks, notes, checkIns,
+                counters, newPauses, wheelRatings);
+    }
+
     /** Kopia z podmienioną listą wpisów; reszta danych bez zmian. */
     public AppData withEntries(List<Entry> newEntries) {
         return new AppData(schemaVersion, settings, areas, goals, habits, newEntries, tasks, notes, checkIns,

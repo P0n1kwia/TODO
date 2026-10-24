@@ -145,6 +145,28 @@ class ModelValidationTest {
     }
 
     @Test
+    void withHabitsAndWithPausesReplaceOnlyThatList() {
+        Habit habit = checkDaily("Spacer");
+        Pause pause = new Pause(DAY, DAY, "wyjazd");
+        AppData data = AppData.empty().withHabits(List.of(habit)).withPauses(List.of(pause));
+
+        assertEquals(List.of(habit), data.habits());
+        assertEquals(List.of(pause), data.pauses());
+        assertEquals(List.of(), data.entries());
+    }
+
+    @Test
+    void habitWithArchivedChangesOnlyTheFlag() {
+        Habit habit = checkDaily("Spacer");
+
+        Habit archived = habit.withArchived(true);
+
+        assertEquals(new Habit("h", null, "Spacer", HabitKind.CHECK, Schedule.DAILY, null, null, null, null, DAY, true),
+                archived);
+        assertEquals(habit, archived.withArchived(false));
+    }
+
+    @Test
     void emptyAppDataUsesCurrentSchemaAndDefaultSettings() {
         AppData data = AppData.empty();
 

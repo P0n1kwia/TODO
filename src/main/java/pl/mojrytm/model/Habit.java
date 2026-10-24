@@ -48,4 +48,10 @@ public record Habit(
             throw new IllegalArgumentException("Pole 'targetAmount' dotyczy tylko nawyków typu COUNT");
         }
     }
+
+    /** Kopia z zmienioną flagą archiwizacji. */
+    public Habit withArchived(boolean newArchived) {
+        return new Habit(id, goalId, name, kind, schedule, timesPerWeek, targetAmount, unit, minimumVersion,
+                created, newArchived);
+    }
 }
