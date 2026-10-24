@@ -6,6 +6,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import pl.mojrytm.model.Habit;
+import pl.mojrytm.model.HabitKind;
+import pl.mojrytm.model.Schedule;
 import pl.mojrytm.service.DayStatus;
 import pl.mojrytm.service.Streak;
 import pl.mojrytm.service.StreakUnit;
@@ -22,9 +25,10 @@ final class Formats {
     private Formats() {
     }
 
-    /** "sobota, 24 października 2026" */
+    /** "Sobota, 24 października 2026" */
     static String longDate(LocalDate date) {
-        return LONG_DATE.format(date);
+        String text = LONG_DATE.format(date);
+        return text.substring(0, 1).toUpperCase(Messages.POLISH) + text.substring(1);
     }
 
     /** "24.10.2026" */
@@ -96,5 +100,33 @@ final class Formats {
         } catch (NumberFormatException e) {
             return OptionalDouble.empty();
         }
+    }
+
+    /** "Codziennie" albo "3 razy w tygodniu". */
+    static String schedule(Habit habit) {
+        if (habit.schedule() == Schedule.DAILY) {
+            return Messages.get("habit.schedule.daily");
+        }
+        int times = habit.timesPerWeek();
+        String unit = PolishPlural.pick(times, Messages.get("habit.times.one"), Messages.get("habit.times.few"),
+                Messages.get("habit.times.many"));
+        return Messages.format("habit.schedule.weekly", times + " " + unit);
+    }
+
+    /** "Zaznaczenie" albo "Ilość: 8 szklanki" (cel z jednostką). */
+    static String kind(Habit habit) {
+        if (habit.kind() == HabitKind.CHECK) {
+            return Messages.get("habit.kind.check");
+        }
+        return Messages.format("habit.kind.count", target(habit));
+    }
+
+    /** Cel dzienny z jednostką: "8 szklanki"; pusty dla nawyku bez celu ilościowego. */
+    static String target(Habit habit) {
+        if (habit.targetAmount() == null) {
+            return "";
+        }
+        String unit = habit.unit() == null ? "" : " " + habit.unit();
+        return amount(habit.targetAmount()) + unit;
     }
 }

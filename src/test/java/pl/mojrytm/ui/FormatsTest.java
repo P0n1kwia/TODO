@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import pl.mojrytm.model.Habit;
+import pl.mojrytm.model.HabitKind;
+import pl.mojrytm.model.Schedule;
 import pl.mojrytm.service.DayStatus;
 import pl.mojrytm.service.Streak;
 import pl.mojrytm.service.StreakUnit;
@@ -17,7 +20,7 @@ class FormatsTest {
 
     @Test
     void formatsDatesInPolish() {
-        assertEquals("sobota, 24 października 2026", Formats.longDate(LocalDate.of(2026, 10, 24)));
+        assertEquals("Sobota, 24 października 2026", Formats.longDate(LocalDate.of(2026, 10, 24)));
         assertEquals("24.10.2026", Formats.numericDate(LocalDate.of(2026, 10, 24)));
         assertEquals("05.01.2027", Formats.numericDate(LocalDate.of(2027, 1, 5)));
     }
@@ -93,5 +96,31 @@ class FormatsTest {
     @Test
     void formattedAmountsCanBeParsedBack() {
         assertEquals(OptionalDouble.of(2.5), Formats.parseAmount(Formats.amount(2.5)));
+    }
+
+    private static Habit habit(HabitKind kind, Schedule schedule, Integer times, Double target, String unit) {
+        return new Habit("h", null, "Nawyk", kind, schedule, times, target, unit, null, LocalDate.of(2026, 10, 1), false);
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "1|1 raz w tygodniu", "2|2 razy w tygodniu", "4|4 razy w tygodniu", "5|5 razy w tygodniu",
+            "7|7 razy w tygodniu"})
+    void describesTheWeeklySchedule(int times, String expected) {
+        assertEquals(expected, Formats.schedule(habit(HabitKind.CHECK, Schedule.WEEKLY, times, null, null)));
+    }
+
+    @Test
+    void describesTheDailySchedule() {
+        assertEquals("Codziennie", Formats.schedule(habit(HabitKind.CHECK, Schedule.DAILY, null, null, null)));
+    }
+
+    @Test
+    void describesTheKindWithTheTarget() {
+        assertEquals("Zaznaczenie", Formats.kind(habit(HabitKind.CHECK, Schedule.DAILY, null, null, null)));
+        assertEquals("Ilość: 8 szklanki",
+                Formats.kind(habit(HabitKind.COUNT, Schedule.DAILY, null, 8.0, "szklanki")));
+        assertEquals("Ilość: 2,5", Formats.kind(habit(HabitKind.COUNT, Schedule.DAILY, null, 2.5, null)));
+        assertEquals("", Formats.target(habit(HabitKind.CHECK, Schedule.DAILY, null, null, null)));
     }
 }

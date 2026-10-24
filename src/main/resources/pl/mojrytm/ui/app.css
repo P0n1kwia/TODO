@@ -53,3 +53,129 @@
     -fx-text-fill: -color-error;
     -fx-font-weight: bold;
 }
+
+.screen-scroll,
+.screen-scroll > .viewport {
+    -fx-background-color: #f6f7f9;
+    -fx-background: #f6f7f9;
+}
+
+.screen-content {
+    -fx-padding: 24;
+}
+
+.screen-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.screen-subtitle {
+    -fx-text-fill: -color-muted;
+    -fx-font-size: 15px;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 0 0 0;
+}
+
+.habit-card {
+    -fx-background-color: white;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 14 18 14 18;
+}
+
+.habit-card.paused {
+    -fx-border-style: dashed;
+    -fx-border-color: #8aa4c2;
+}
+
+.habit-card.done {
+    -fx-background-color: -color-done;
+    -fx-border-color: #9fcba9;
+}
+
+.habit-card.minimal {
+    -fx-background-color: -color-minimal;
+    -fx-border-color: #cdd98f;
+}
+
+.habit-card.archived {
+    -fx-opacity: 0.65;
+}
+
+.habit-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.habit-meta {
+    -fx-text-fill: -color-muted;
+    -fx-font-size: 12.5px;
+}
+
+.streak-label {
+    -fx-text-fill: -color-accent;
+    -fx-font-weight: bold;
+}
+
+.action-button {
+    -fx-background-color: #eef1f5;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #dfe5ed;
+}
+
+.action-button.on {
+    -fx-background-color: -color-done-text;
+    -fx-text-fill: white;
+}
+
+.action-button.minimum-button.on {
+    -fx-background-color: -color-minimal-text;
+}
+
+.step-button {
+    -fx-background-radius: 14;
+    -fx-min-width: 30;
+    -fx-padding: 4 10 4 10;
+    -fx-cursor: hand;
+}
+
+.amount-field {
+    -fx-pref-width: 72;
+}
+
+.primary-button {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 9 18 9 18;
+    -fx-cursor: hand;
+}
+
+.banner {
+    -fx-background-color: #e3ecf6;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+}
+
+.empty-state {
+    -fx-padding: 24 0 0 0;
+}
+
+.empty-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.form-problem {
+    -fx-text-fill: -color-muted;
+}

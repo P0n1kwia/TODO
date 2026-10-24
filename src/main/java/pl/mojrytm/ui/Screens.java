@@ -1,6 +1,8 @@
 package pl.mojrytm.ui;
 
 import java.util.List;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 
 /** Lista ekranów aplikacji w kolejności paska nawigacji. */
 final class Screens {
@@ -9,6 +11,15 @@ final class Screens {
     }
 
     static List<Screen> create(AppModel model) {
-        return List.of();
+        return List.of(
+                new Screen(Messages.get("nav.today"), scrollable(new TodayScreen(model))),
+                new Screen(Messages.get("nav.habits"), scrollable(new HabitsScreen(model))));
+    }
+
+    private static ScrollPane scrollable(Node content) {
+        ScrollPane pane = new ScrollPane(content);
+        pane.setFitToWidth(true);
+        pane.getStyleClass().add("screen-scroll");
+        return pane;
     }
 }
